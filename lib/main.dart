@@ -1,6 +1,7 @@
 import 'package:account/provider/transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart'; // เพิ่ม import สำหรับจัดรูปแบบวันที่
 import 'formScreen.dart';
 
 void main() {
@@ -45,44 +46,47 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                // การนำทางไปยัง FormScreen
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const FormScreen(); // เปิดหน้าจอ FormScreen
-                }));
-              },
-            ),
-          ],
-        ),
-        body: Consumer(builder:
-            (context, TransactionProvider transactionProvider, Widget? child) {
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return const FormScreen();
+              }));
+            },
+          ),
+        ],
+      ),
+      body: Consumer<TransactionProvider>(
+        builder: (context, transactionProvider, child) {
           return ListView.builder(
             itemCount: transactionProvider.transactions.length,
             itemBuilder: (context, int index) {
+              final transaction = transactionProvider.transactions[index];
+
               return Card(
                 elevation: 3,
-                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
                 child: ListTile(
-                  title: Text(
-                      'รายการที่ ${index + 1} - ${transactionProvider.transactions[index].title}'),
-                  subtitle: Text('วันที่บันทึก - ${transactionProvider.transactions[index].date}'),
+                  title: Text('รายการที่ ${index + 1} - ${transaction.title}'),
+                  subtitle: Text(
+                    'วันที่บันทึก - ${DateFormat('yyyy-MM-dd HH:mm').format(transaction.date)}',
+                  ),
                   leading: CircleAvatar(
                     radius: 30,
                     child: FittedBox(
-                      child: Text(transactionProvider.transactions[index].amount
-                          .toString()),
+                      child: Text(transaction.amount.toString()),
                     ),
                   ),
                 ),
               );
             },
           );
-        }));
+        },
+      ),
+    );
   }
 }
